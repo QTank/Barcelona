@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barcelona 3-Day Travel Guide</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #F7F4EF;
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #B5451B 0%, #E8732A 100%);
+    padding: 28px 20px 20px;
+    color: white;
+  }
+  .header-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    opacity: 0.8;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .header-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .header-sub {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  /* ── Day tabs ── */
+  .day-tabs {
+    display: flex;
+    background: #1A1A1A;
+  }
+  .day-tab {
+    flex: 1;
+    padding: 12px 4px;
+    border: none;
+    background: transparent;
+    color: #999;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+  .day-tab.active { color: white; }
+  .day-tab .tab-emoji { font-size: 18px; }
+  .day-tab .tab-theme { font-size: 10px; opacity: 0.8; }
+
+  /* ── Day content ── */
+  .day-content { padding: 16px 16px 0; display: none; }
+  .day-content.visible { display: block; }
+
+  /* ── Day header ── */
+  .day-header {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .day-header-emoji { font-size: 28px; }
+  .day-header-title { font-weight: 800; font-size: 17px; }
+  .day-header-sub { font-size: 12px; opacity: 0.85; }
+
+  /* ── Timeline ── */
+  .stop-wrap { margin-bottom: 10px; }
+  .stop-row { display: flex; gap: 10px; align-items: flex-start; }
+
+  .stop-dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 16px;
+  }
+  .stop-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .stop-line {
+    width: 2px;
+    background: #ddd;
+    flex: 1;
+    min-height: 40px;
+    margin-top: 4px;
+  }
+
+  /* ── Stop card ── */
+  .stop-card-col { flex: 1; margin-bottom: 4px; }
+
+  .stop-card {
+    width: 100%;
+    text-align: left;
+    background: white;
+    border: 2px solid #E8E4DF;
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    display: block;
+  }
+  .stop-card.open { border-color: var(--day-color); }
+
+  .stop-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .stop-time {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+    color: var(--day-color);
+  }
+  .stop-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A1A1A;
+    line-height: 1.2;
+  }
+  .stop-rating { font-size: 12px; color: #888; margin-top: 2px; }
+  .must-badge {
+    display: inline-block;
+    margin-left: 8px;
+    color: white;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .stop-chevron { font-size: 18px; margin-top: 2px; color: var(--day-color); }
+
+  .stop-tips {
+    display: none;
+    margin-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    padding-top: 10px;
+  }
+  .stop-card.open .stop-tips { display: block; }
+  .tip-item { font-size: 13px; color: #333; padding: 4px 0; line-height: 1.4; }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: #E8E4DF; margin: 20px 16px 16px; }
+
+  /* ── Tickets ── */
+  .tickets-wrap { padding: 0 16px; }
+  .tickets-btn {
+    width: 100%;
+    background: white;
+    color: #1A1A1A;
+    border: 2px solid #1A1A1A;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .tickets-btn.open {
+    background: #1A1A1A;
+    color: white;
+    border-radius: 12px 12px 0 0;
+  }
+  .tickets-list {
+    display: none;
+    background: white;
+    border: 2px solid #1A1A1A;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+  }
+  .tickets-list.open { display: block; }
+  .ticket-row {
+    display: flex;
+    align-items: center;
+    padding: 11px 16px;
+    border-bottom: 1px solid #F0EDE8;
+    gap: 12px;
+  }
+  .ticket-row:last-child { border-bottom: none; }
+  .ticket-icon { font-size: 18px; }
+  .ticket-name { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+  .ticket-note { font-size: 11px; color: #888; }
+  .ticket-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* ── Tips footer ── */
+  .tips-footer {
+    padding: 16px 16px 0;
+  }
+  .tips-card {
+    background: #1A1A1A;
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: white;
+  }
+  .tips-title { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .tip-footer-item { font-size: 12px; color: #CCC; padding: 3px 0; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-eyebrow">Your Travel Guide</div>
+    <div class="header-title">Barcelona 🇪🇸</div>
+    <div class="header-sub">3 days · 8 major sites · Museums &amp; Cathedral</div>
+  </div>
+
+  <!-- Day tabs -->
+  <div class="day-tabs">
+    <div class="day-tab active" style="background:#C94F2C" onclick="showDay(0,this,'#C94F2C')">
+      <span class="tab-emoji">🏛️</span>
+      <span>Day 1</span>
+      <span class="tab-theme">Gaudí</span>
+    </div>
+    <div class="day-tab" onclick="showDay(1,this,'#1A6B8A')">
+      <span class="tab-emoji">⛪</span>
+      <span>Day 2</span>
+      <span class="tab-theme">Old Town</span>
+    </div>
+    <div class="day-tab" onclick="showDay(2,this,'#2D7A4F')">
+      <span class="tab-emoji">🏔️</span>
+      <span>Day 3</span>
+      <span class="tab-theme">Montjuïc</span>
+    </div>
+  </div>
+
+  <!-- ══ DAY 1 ══ -->
+  <div class="day-content visible" id="day-0" style="--day-color:#C94F2C">
+    <div class="day-header" style="background:#C94F2C">
+      <span class="day-header-emoji">🏛️</span>
+      <div>
+        <div class="day-header-title">Day 1 — Gaudí</div>
+        <div class="day-header-sub">3 stops · tap each for tips</div>
+      </div>
+    </div>
+
+    <!-- Sagrada Família -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#C94F2C;border:2px solid #C94F2C"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#C94F2C')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#C94F2C">9:00 AM · 2.5 hrs</div>
+                <div class="stop-name">Sagrada Família</div>
+                <div class="stop-rating">⭐ 4.8 <span class="must-badge" style="background:#C94F2C">MUST</span></div>
+              </div>
+              <span class="stop-chevron" style="color:#C94F2C">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">🎟️ Book NOW — sells out weeks ahead</div>
+              <div class="tip-item">☀️ Morning light inside is magical</div>
+              <div class="tip-item">🗼 Add tower access for rooftop views</div>
+              <div class="tip-item">🎧 Audio guide highly recommended</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Park Güell -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#C94F2C;border:2px solid #C94F2C"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#C94F2C')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#C94F2C">12:00 PM · 1.5 hrs</div>
+                <div class="stop-name">Park Güell</div>
+                <div class="stop-rating">⭐ 4.4 <span class="must-badge" style="background:#C94F2C">MUST</span></div>
+              </div>
+              <span class="stop-chevron" style="color:#C94F2C">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">🎟️ Pre-book timed entry online</div>
+              <div class="tip-item">🦎 Mosaic dragon staircase is the highlight</div>
+              <div class="tip-item">🌆 Great panoramic views over Barcelona</div>
+              <div class="tip-item">👟 Wear comfortable shoes — there are slopes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Casa Batlló -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#C94F2C')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#C94F2C">3:30 PM · 1.5 hrs</div>
+                <div class="stop-name">Casa Batlló</div>
+                <div class="stop-rating">⭐ 4.7</div>
+              </div>
+              <span class="stop-chevron" style="color:#C94F2C">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">💰 Expensive but genuinely stunning inside</div>
+              <div class="tip-item">📸 Exterior on Passeig de Gràcia is free</div>
+              <div class="tip-item">🏠 Casa Milà (La Pedrera) is right next door</div>
+              <div class="tip-item">🌙 Evening visit has a light show</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DAY 2 ══ -->
+  <div class="day-content" id="day-1" style="--day-color:#1A6B8A">
+    <div class="day-header" style="background:#1A6B8A">
+      <span class="day-header-emoji">⛪</span>
+      <div>
+        <div class="day-header-title">Day 2 — Old Town</div>
+        <div class="day-header-sub">4 stops · tap each for tips</div>
+      </div>
+    </div>
+
+    <!-- Barcelona Cathedral -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#1A6B8A')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#1A6B8A">9:30 AM · 1.5 hrs</div>
+                <div class="stop-name">Barcelona Cathedral</div>
+                <div class="stop-rating">⭐ 4.6</div>
+              </div>
+              <span class="stop-chevron" style="color:#1A6B8A">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">🆓 Free entry before 12:30pm on weekdays</div>
+              <div class="tip-item">🦢 Do NOT miss the cloister with white geese</div>
+              <div class="tip-item">🏰 Gothic Quarter lanes — wander freely after</div>
+              <div class="tip-item">🕓 Closed Sunday mornings</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Picasso Museum -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#1A6B8A')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#1A6B8A">11:30 AM · 1.5 hrs</div>
+                <div class="stop-name">Picasso Museum</div>
+                <div class="stop-rating">⭐ 4.4</div>
+              </div>
+              <span class="stop-chevron" style="color:#1A6B8A">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">❌ Closed Mondays</div>
+              <div class="tip-item">🎟️ Book online to skip queues</div>
+              <div class="tip-item">🎨 World's largest early Picasso collection</div>
+              <div class="tip-item">🏛️ Set in a beautiful medieval palace</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- La Boqueria -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#1A6B8A')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#1A6B8A">2:00 PM · 1 hr</div>
+                <div class="stop-name">La Boqueria Market</div>
+                <div class="stop-rating">⭐ 4.5</div>
+              </div>
+              <span class="stop-chevron" style="color:#1A6B8A">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">❌ Closed Sundays</div>
+              <div class="tip-item">⚠️ Do NOT eat at market stalls — overpriced</div>
+              <div class="tip-item">🍓 Buy fruit, jamón, or fresh juice to go</div>
+              <div class="tip-item">⏰ Go early, gets very crowded by 10am</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barceloneta Beach -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#1A6B8A')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#1A6B8A">4:00 PM · 2 hrs</div>
+                <div class="stop-name">Barceloneta Beach</div>
+                <div class="stop-rating">⭐ 4.4</div>
+              </div>
+              <span class="stop-chevron" style="color:#1A6B8A">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">🌊 Swim in the Mediterranean</div>
+              <div class="tip-item">🍺 Chiringuitos (beach bars) along the strip</div>
+              <div class="tip-item">🚶 Walk the seafront promenade</div>
+              <div class="tip-item">🌅 Beautiful late afternoon light</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DAY 3 ══ -->
+  <div class="day-content" id="day-2" style="--day-color:#2D7A4F">
+    <div class="day-header" style="background:#2D7A4F">
+      <span class="day-header-emoji">🏔️</span>
+      <div>
+        <div class="day-header-title">Day 3 — Montjuïc</div>
+        <div class="day-header-sub">4 stops · tap each for tips</div>
+      </div>
+    </div>
+
+    <!-- MNAC -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#2D7A4F')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#2D7A4F">10:00 AM · 2 hrs</div>
+                <div class="stop-name">MNAC</div>
+                <div class="stop-rating">⭐ 4.7</div>
+              </div>
+              <span class="stop-chevron" style="color:#2D7A4F">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">❌ Closed Mondays</div>
+              <div class="tip-item">🆓 Free first Sunday of each month</div>
+              <div class="tip-item">🎨 Best Romanesque art collection in the world</div>
+              <div class="tip-item">🌆 Stunning city views from the terrace</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Miró Foundation -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#2D7A4F')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#2D7A4F">12:30 PM · 1.5 hrs</div>
+                <div class="stop-name">Joan Miró Foundation</div>
+                <div class="stop-rating">⭐ 4.4</div>
+              </div>
+              <span class="stop-chevron" style="color:#2D7A4F">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">🖼️ 10-min walk from MNAC</div>
+              <div class="tip-item">👥 Much less crowded than Picasso Museum</div>
+              <div class="tip-item">🏛️ Beautiful whitewashed building by Sert</div>
+              <div class="tip-item">🎨 Large-scale Miró installations</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Montjuïc Castle -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#ccc;border:2px solid #bbb"></div>
+          <div class="stop-line"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#2D7A4F')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#2D7A4F">2:30 PM · 1.5 hrs</div>
+                <div class="stop-name">Montjuïc Castle</div>
+                <div class="stop-rating">⭐ 4.4</div>
+              </div>
+              <span class="stop-chevron" style="color:#2D7A4F">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">🚡 Take the cable car up</div>
+              <div class="tip-item">🆓 Free Sundays after 3pm</div>
+              <div class="tip-item">🌅 360° views: city, port and sea</div>
+              <div class="tip-item">🏰 Walk the ramparts for best panoramas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Magic Fountain -->
+    <div class="stop-wrap">
+      <div class="stop-row">
+        <div class="stop-dot-col">
+          <div class="stop-dot" style="background:#2D7A4F;border:2px solid #2D7A4F"></div>
+        </div>
+        <div class="stop-card-col">
+          <div class="stop-card" onclick="toggleStop(this,'#2D7A4F')">
+            <div class="stop-card-top">
+              <div>
+                <div class="stop-time" style="color:#2D7A4F">9:00 PM · 1 hr</div>
+                <div class="stop-name">Magic Fountain</div>
+                <div class="stop-rating">🆓 FREE <span class="must-badge" style="background:#2D7A4F">MUST</span></div>
+              </div>
+              <span class="stop-chevron" style="color:#2D7A4F">▼</span>
+            </div>
+            <div class="stop-tips">
+              <div class="tip-item">✅ Thu–Sun evenings only, ~9:00–10:30pm</div>
+              <div class="tip-item">🎵 Light and music water show</div>
+              <div class="tip-item">📍 Foot of Montjuïc hill</div>
+              <div class="tip-item">🌟 Best free night activity in Barcelona</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider"></div>
+
+  <!-- Booking Checklist -->
+  <div class="tickets-wrap">
+    <div class="tickets-btn" onclick="toggleTickets(this)">
+      <span>🎟️ &nbsp;Booking Checklist</span>
+      <span id="tickets-chevron">▼</span>
+    </div>
+    <div class="tickets-list" id="tickets-list">
+      <div class="ticket-row">
+        <span class="ticket-icon">🔴</span>
+        <div><div class="ticket-name">Sagrada Família</div><div class="ticket-note">Sells out weeks ahead</div></div>
+        <span class="ticket-badge" style="background:#FFF0ED;color:#C94F2C">BOOK NOW</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">🔴</span>
+        <div><div class="ticket-name">Park Güell</div><div class="ticket-note">Timed entry — book online</div></div>
+        <span class="ticket-badge" style="background:#FFF0ED;color:#C94F2C">BOOK NOW</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">🔴</span>
+        <div><div class="ticket-name">Casa Batlló</div><div class="ticket-note">Online is cheaper</div></div>
+        <span class="ticket-badge" style="background:#FFF0ED;color:#C94F2C">BOOK NOW</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">🔴</span>
+        <div><div class="ticket-name">Picasso Museum</div><div class="ticket-note">Skip the queues</div></div>
+        <span class="ticket-badge" style="background:#FFF0ED;color:#C94F2C">BOOK NOW</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">✅</span>
+        <div><div class="ticket-name">MNAC</div><div class="ticket-note">Free first Sunday/month</div></div>
+        <span class="ticket-badge" style="background:#F0FFF5;color:#2D7A4F">Walk in</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">✅</span>
+        <div><div class="ticket-name">Miró Foundation</div><div class="ticket-note">Rarely crowded</div></div>
+        <span class="ticket-badge" style="background:#F0FFF5;color:#2D7A4F">Walk in</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">✅</span>
+        <div><div class="ticket-name">Cathedral</div><div class="ticket-note">Free before 12:30pm weekdays</div></div>
+        <span class="ticket-badge" style="background:#F0FFF5;color:#2D7A4F">Walk in</span>
+      </div>
+      <div class="ticket-row">
+        <span class="ticket-icon">✅</span>
+        <div><div class="ticket-name">Montjuïc Castle</div><div class="ticket-note">Free Sundays after 3pm</div></div>
+        <span class="ticket-badge" style="background:#F0FFF5;color:#2D7A4F">Walk in</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips footer -->
+  <div class="tips-footer">
+    <div class="tips-card">
+      <div class="tips-title">⚠️ Essential Tips</div>
+      <div class="tip-footer-item">🦅 Keep bags in front — pickpockets in Gothic Quarter and Metro</div>
+      <div class="tip-footer-item">🍽️ Avoid all restaurants on La Rambla — tourist traps</div>
+      <div class="tip-footer-item">🕙 Locals eat dinner at 9–10pm, restaurants are lively then</div>
+      <div class="tip-footer-item">📅 Plan Picasso Museum on Tue–Sun, MNAC on Tue–Sun</div>
+      <div class="tip-footer-item">🚇 Get a T-Casual card (10 trips) for Metro</div>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<script>
+  var currentDay = 0;
+  var currentColor = '#C94F2C';
+
+  function showDay(n, tabEl, color) {
+    // hide all days
+    document.querySelectorAll('.day-content').forEach(function(el) {
+      el.classList.remove('visible');
+    });
+    // reset all tabs
+    document.querySelectorAll('.day-tab').forEach(function(el) {
+      el.classList.remove('active');
+      el.style.background = 'transparent';
+    });
+    // close all stops
+    document.querySelectorAll('.stop-card').forEach(function(el) {
+      el.classList.remove('open');
+      var ch = el.querySelector('.stop-chevron');
+      if (ch) ch.textContent = '▼';
+    });
+
+    document.getElementById('day-' + n).classList.add('visible');
+    tabEl.classList.add('active');
+    tabEl.style.background = color;
+    currentColor = color;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleStop(card, color) {
+    var isOpen = card.classList.contains('open');
+    // close all stops first
+    document.querySelectorAll('.stop-card').forEach(function(el) {
+      el.classList.remove('open');
+      el.style.borderColor = '#E8E4DF';
+      el.style.background = 'white';
+      var ch = el.querySelector('.stop-chevron');
+      if (ch) ch.textContent = '▼';
+    });
+    if (!isOpen) {
+      card.classList.add('open');
+      card.style.borderColor = color;
+      card.style.background = color + '11';
+      var ch = card.querySelector('.stop-chevron');
+      if (ch) ch.textContent = '▲';
+    }
+  }
+
+  function toggleTickets(btn) {
+    var list = document.getElementById('tickets-list');
+    var ch = document.getElementById('tickets-chevron');
+    var isOpen = list.classList.contains('open');
+    if (isOpen) {
+      list.classList.remove('open');
+      btn.classList.remove('open');
+      ch.textContent = '▼';
+    } else {
+      list.classList.add('open');
+      btn.classList.add('open');
+      ch.textContent = '▲';
+    }
+  }
+</script>
+</body>
+</html>
